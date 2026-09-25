@@ -1,5 +1,9 @@
 import telebot
 import google.generativeai as genai
+import http.server
+import socketserver
+import threading
+import os
 
 # 1. TERA TOKEN AUR API KEY
 BOT_TOKEN = "8819011127:AAFhSkNexT5-dOXLnPe_g_SrpGk89_Xxbws"
@@ -38,7 +42,22 @@ def handle_all_messages(message):
             bot.reply_to(message, response.text)
         except Exception as e:
             print(f"Error: {e}")
-            bot.reply_to(message, "Bhai tera AI dimaag load nahi le pa raha. Shayad API Key galat hai, nayi (AIza... wali) key daal!")
+            bot.reply_to(message, "Bhai tera AI dimaag load nahi le pa raha. Shayad API Key galat hai!")
 
-print("🔥 Sasta Babu Render par zinda ho gaya hai!...")
+# 4. RENDER KO BEWAKOOF BANANE WALA DUMMY WEB SERVER
+PORT = int(os.environ.get('PORT', 8080))
+class Handler(http.server.SimpleHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Sasta Babu is running for FREE!")
+
+def run_server():
+    with socketserver.TCPServer(("", PORT), Handler) as httpd:
+        httpd.serve_forever()
+
+# Background me dummy server chalu karo
+threading.Thread(target=run_server, daemon=True).start()
+
+print("🔥 Sasta Babu Web Service par zinda ho gaya hai!...")
 bot.infinity_polling(skip_pending=True)
